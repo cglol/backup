@@ -1,0 +1,30 @@
+# This is a basic workflow to help you get started with Actions
+
+name: whyour-ql-sync
+on:
+  schedule:
+    - cron: '1 */3 * * *'
+  workflow_dispatch:
+  watch:
+    types: started
+  repository_dispatch:
+    types: whyour-qinglong
+jobs:
+  repo-sync:
+    env:
+      PAT: ${{ secrets.PAT }} 
+    runs-on: ubuntu-latest
+    if: github.event.repository.owner.id == github.event.sender.id
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+
+      - name: sync whyour-qinglong
+        uses: repo-sync/github-sync@v2
+        if: env.PAT
+        with:
+          source_repo: "https://github.com/whyour/qinglong.git"
+          source_branch: "main"
+          destination_branch: "whyour-qinglong"
+          github_token: ${{ secrets.PAT }}
